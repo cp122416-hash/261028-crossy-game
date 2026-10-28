@@ -1,0 +1,673 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: #12151b;
+  color: #f1f2f6;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  height: 100vh;
+  height: 100dvh;
+  width: 100vw;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* 전체 앱 레이아웃 (세로 방향 정렬) */
+#app-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  max-width: 520px;
+  padding: 8px 12px 14px;
+  gap: 10px;
+}
+
+/* 게임 화면 영역 */
+#game-view {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+}
+
+/* 캔버스 (480x720 고정 비율 유지) */
+#gameCanvas {
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: 480 / 720;
+  display: block;
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  background-color: #58b368;
+}
+
+/* 상단 점수 HUD */
+#hud {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  right: 14px;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.hud-card {
+  background: rgba(18, 22, 31, 0.88);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 6px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  min-width: 86px;
+}
+
+.hud-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #95a5a6;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.hud-value {
+  font-size: 22px;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+#best-score {
+  color: #f1c40f;
+}
+
+/* 화면 오버레이 (시작 및 게임 오버 모달) */
+.screen-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(10, 14, 22, 0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 12px;
+  padding: 20px;
+  z-index: 20;
+  transition: opacity 0.2s ease;
+}
+
+.modal-card {
+  background: #1e2430;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 24px 20px;
+  width: 100%;
+  max-width: 340px;
+  text-align: center;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.title-badge {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #ff793f;
+  background: rgba(255, 121, 63, 0.14);
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.game-title {
+  font-size: 28px;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+}
+
+.game-subtitle {
+  font-size: 13px;
+  color: #a4b0be;
+  margin-top: -6px;
+  line-height: 1.4;
+}
+
+/* 조작 안내 박스 */
+.instructions-box {
+  width: 100%;
+  background: #141822;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.instruction-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.inst-tag {
+  background: #2f3640;
+  color: #dfe4ea;
+  font-weight: 700;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  min-width: 44px;
+  text-align: center;
+}
+
+.inst-text {
+  color: #ced6e0;
+  font-size: 12px;
+}
+
+/* 게임 오버 스타일 */
+.game-over-title {
+  font-size: 30px;
+  font-weight: 900;
+  color: #ff4757;
+  letter-spacing: 1px;
+  text-shadow: 0 0 16px rgba(255, 71, 87, 0.4);
+}
+
+.game-over-desc {
+  font-size: 14px;
+  color: #ffa502;
+  font-weight: 600;
+  margin-top: -6px;
+}
+
+.score-summary-box {
+  width: 100%;
+  background: #141822;
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.summary-label {
+  font-size: 11px;
+  color: #a4b0be;
+  font-weight: 600;
+}
+
+.summary-value {
+  font-size: 26px;
+  font-weight: 900;
+}
+
+.summary-value.current {
+  color: #ffffff;
+}
+
+.summary-value.best {
+  color: #f1c40f;
+}
+
+.summary-divider {
+  width: 1px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* 주요 동작 버튼 (게임 시작 / 다시 시작) */
+.action-btn {
+  width: 100%;
+  padding: 13px 0;
+  background: linear-gradient(135deg, #ff793f, #ee5253);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(238, 82, 83, 0.4);
+  transition: transform 0.1s ease, filter 0.15s ease;
+  touch-action: manipulation;
+}
+
+.action-btn:hover {
+  filter: brightness(1.08);
+}
+
+.action-btn:active {
+  transform: scale(0.97);
+  filter: brightness(0.95);
+}
+
+/* 모바일 조작 컨트롤러 */
+#mobile-controls {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  max-width: 280px;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.ctrl-top-row {
+  display: flex;
+  justify-content: center;
+}
+
+.ctrl-middle-row {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.ctrl-btn {
+  width: 60px;
+  height: 52px;
+  background: #252c3b;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 3px solid #161b24;
+  border-radius: 12px;
+  color: #f1f2f6;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+  transition: transform 0.05s ease, background-color 0.08s ease, border-color 0.08s ease;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.ctrl-btn.active,
+.ctrl-btn:active {
+  background: #ff793f;
+  color: #ffffff;
+  border-bottom-width: 1px;
+  transform: translateY(2px);
+  box-shadow: 0 2px 6px rgba(255, 121, 63, 0.4);
+}
+
+/* 화면 높이가 작은 모바일 기기 반응형 대응 */
+@media (max-height: 680px) {
+  #app-wrapper {
+    gap: 6px;
+    padding: 4px 8px 8px;
+  }
+
+  .ctrl-btn {
+    width: 54px;
+    height: 44px;
+    font-size: 18px;
+    border-radius: 10px;
+  }
+
+  .ctrl-middle-row {
+    gap: 8px;
+  }
+
+  .hud-card {
+    padding: 4px 10px;
+    min-width: 76px;
+  }
+
+  .hud-value {
+    font-size: 18px;
+  }
+
+  .modal-card {
+    padding: 18px 16px;
+    gap: 10px;
+  }
+
+  .game-title {
+    font-size: 24px;
+  }
+}
+
+.hud-card {
+  background: rgba(18, 22, 31, 0.88);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 6px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  min-width: 86px;
+}
+
+.hud-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #95a5a6;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.hud-value {
+  font-size: 22px;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+#best-score {
+  color: #f1c40f;
+}
+
+/* 화면 오버레이 (시작 및 게임 오버 모달) */
+.screen-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(10, 14, 22, 0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 12px;
+  padding: 20px;
+  z-index: 20;
+  transition: opacity 0.2s ease;
+}
+
+.modal-card {
+  background: #1e2430;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 24px 20px;
+  width: 100%;
+  max-width: 340px;
+  text-align: center;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.title-badge {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #ff793f;
+  background: rgba(255, 121, 63, 0.14);
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.game-title {
+  font-size: 28px;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+}
+
+.game-subtitle {
+  font-size: 13px;
+  color: #a4b0be;
+  margin-top: -6px;
+  line-height: 1.4;
+}
+
+/* 조작 안내 박스 */
+.instructions-box {
+  width: 100%;
+  background: #141822;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.instruction-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.inst-tag {
+  background: #2f3640;
+  color: #dfe4ea;
+  font-weight: 700;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  min-width: 44px;
+  text-align: center;
+}
+
+.inst-text {
+  color: #ced6e0;
+  font-size: 12px;
+}
+
+/* 게임 오버 스타일 */
+.game-over-title {
+  font-size: 30px;
+  font-weight: 900;
+  color: #ff4757;
+  letter-spacing: 1px;
+  text-shadow: 0 0 16px rgba(255, 71, 87, 0.4);
+}
+
+.game-over-desc {
+  font-size: 14px;
+  color: #ffa502;
+  font-weight: 600;
+  margin-top: -6px;
+}
+
+.score-summary-box {
+  width: 100%;
+  background: #141822;
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.summary-label {
+  font-size: 11px;
+  color: #a4b0be;
+  font-weight: 600;
+}
+
+.summary-value {
+  font-size: 26px;
+  font-weight: 900;
+}
+
+.summary-value.current {
+  color: #ffffff;
+}
+
+.summary-value.best {
+  color: #f1c40f;
+}
+
+.summary-divider {
+  width: 1px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* 주요 동작 버튼 (게임 시작 / 다시 시작) */
+.action-btn {
+  width: 100%;
+  padding: 13px 0;
+  background: linear-gradient(135deg, #ff793f, #ee5253);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(238, 82, 83, 0.4);
+  transition: transform 0.1s ease, filter 0.15s ease;
+  touch-action: manipulation;
+}
+
+.action-btn:hover {
+  filter: brightness(1.08);
+}
+
+.action-btn:active {
+  transform: scale(0.97);
+  filter: brightness(0.95);
+}
+
+/* 모바일 조작 컨트롤러 */
+#mobile-controls {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  max-width: 280px;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.ctrl-top-row {
+  display: flex;
+  justify-content: center;
+}
+
+.ctrl-middle-row {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.ctrl-btn {
+  width: 60px;
+  height: 52px;
+  background: #252c3b;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 3px solid #161b24;
+  border-radius: 12px;
+  color: #f1f2f6;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+  transition: transform 0.05s ease, background-color 0.08s ease, border-color 0.08s ease;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.ctrl-btn.active,
+.ctrl-btn:active {
+  background: #ff793f;
+  color: #ffffff;
+  border-bottom-width: 1px;
+  transform: translateY(2px);
+  box-shadow: 0 2px 6px rgba(255, 121, 63, 0.4);
+}
+
+/* 화면 높이가 작은 모바일 기기 반응형 대응 */
+@media (max-height: 680px) {
+  #app-wrapper {
+    gap: 6px;
+    padding: 4px 8px 8px;
+  }
+
+  .ctrl-btn {
+    width: 54px;
+    height: 44px;
+    font-size: 18px;
+    border-radius: 10px;
+  }
+
+  .ctrl-middle-row {
+    gap: 8px;
+  }
+
+  .hud-card {
+    padding: 4px 10px;
+    min-width: 76px;
+  }
+
+  .hud-value {
+    font-size: 18px;
+  }
+
+  .modal-card {
+    padding: 18px 16px;
+    gap: 10px;
+  }
+
+  .game-title {
+    font-size: 24px;
+  }
+}
+

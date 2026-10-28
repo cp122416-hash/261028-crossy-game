@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>한 칸 앞으로</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app-wrapper">
+    <!-- 게임 화면 래퍼 -->
+    <div id="game-view">
+      <canvas id="gameCanvas" width="480" height="720"></canvas>
+
+      <!-- 상단 점수 HUD (게임 플레이 중 상단에 표시) -->
+      <div id="hud">
+        <div class="hud-card">
+          <span class="hud-label">현재 점수</span>
+          <span id="current-score" class="hud-value">0</span>
+        </div>
+        <div class="hud-card">
+          <span class="hud-label">최고 점수</span>
+          <span id="best-score" class="hud-value">0</span>
+        </div>
+      </div>
+
+      <!-- 시작 화면 (READY) -->
+      <div id="screen-ready" class="screen-overlay">
+        <div class="modal-card">
+          <div class="title-badge">CROSSY RUN</div>
+          <h1 class="game-title">한 칸 앞으로</h1>
+          <p class="game-subtitle">차량을 피해 앞으로 최대한 전진하세요!</p>
+          
+          <div class="instructions-box">
+            <div class="instruction-row">
+              <span class="inst-tag">PC</span>
+              <span class="inst-text">방향키(↑ ↓ ← →) 또는 W, A, S, D</span>
+            </div>
+            <div class="instruction-row">
+              <span class="inst-tag">모바일</span>
+              <span class="inst-text">하단 조작 버튼 터치 (1회 1칸)</span>
+            </div>
+          </div>
+
+          <button id="btn-start" class="action-btn" type="button">게임 시작</button>
+        </div>
+      </div>
+
+      <!-- 게임 오버 화면 (GAME_OVER) -->
+      <div id="screen-gameover" class="screen-overlay" style="display: none;">
+        <div class="modal-card">
+          <h2 class="game-over-title">GAME OVER</h2>
+          <p id="game-over-reason" class="game-over-desc">차량과 충돌했습니다!</p>
+          
+          <div class="score-summary-box">
+            <div class="summary-item">
+              <span class="summary-label">이번 점수</span>
+              <span id="final-score" class="summary-value current">0</span>
+            </div>
+            <div class="summary-divider"></div>
+            <div class="summary-item">
+              <span class="summary-label">최고 점수</span>
+              <span id="final-best-score" class="summary-value best">0</span>
+            </div>
+          </div>
+
+          <button id="btn-restart" class="action-btn" type="button">다시 시작</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 모바일 조작 컨트롤 (게임 화면 아래 배치) -->
+    <div id="mobile-controls">
+      <div class="ctrl-top-row">
+        <button id="btn-up" class="ctrl-btn up" aria-label="위로 이동" type="button">▲</button>
+      </div>
+      <div class="ctrl-middle-row">
+        <button id="btn-left" class="ctrl-btn left" aria-label="왼쪽으로 이동" type="button">◀</button>
+        <button id="btn-down" class="ctrl-btn down" aria-label="아래로 이동" type="button">▼</button>
+        <button id="btn-right" class="ctrl-btn right" aria-label="오른쪽으로 이동" type="button">▶</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
